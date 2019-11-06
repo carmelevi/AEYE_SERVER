@@ -3,6 +3,7 @@ import os
 import keras
 import base64
 import io
+import json
 from PIL import Image
 from keras import backend as K
 from keras.preprocessing.image import img_to_array
@@ -12,8 +13,6 @@ from flask import request
 from flask import Flask
 from flask import jsonify
 from aeye_labels import labels
-# from captionbot import CaptionBot
-
 
 app = Flask(__name__)
 
@@ -51,13 +50,14 @@ def predict():
     print("predict")
     with graph.as_default():
         prediction = model.predict(preprocessed_image)
+    # prediction = model.predict(preprocessed_image)
     pred_class = prediction.argmax(axis=-1)
     pred_perc = max(prediction[0])
     label = labels[pred_class[0]]
     print(label)
     response = {
         'label': label,
-        'percentage': pred_perc
+        'percentage': str(pred_perc)
     }
     return jsonify(response)
 
@@ -80,6 +80,3 @@ def hello():
 if __name__ == '__main__':
    app.run(host='127.0.0.1', debug=True, port=9050)
 
-# c = CaptionBot()
-# print(c.url_caption('https://en.wikipedia.org/wiki/Lenna#/media/File:Lenna_(test_image).png'))
-# c.file_caption('your local image filename here')
