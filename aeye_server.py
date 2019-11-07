@@ -4,6 +4,7 @@ import keras
 import base64
 import io
 import json
+import requests
 from PIL import Image
 from keras import backend as K
 from keras.preprocessing.image import img_to_array
@@ -12,6 +13,7 @@ import tensorflow as tf
 from flask import request
 from flask import Flask
 from flask import jsonify
+from captionbot import CaptionBot
 from aeye_labels import labels
 
 app = Flask(__name__)
@@ -62,9 +64,26 @@ def predict():
     return jsonify(response)
 
 
-@app.route('/test')
-def running():
-    return 'App is running'
+@app.route("/caption_bot", methods=["POST"])
+def caption_bot():
+    print("API caption bot called")
+    message = request.get_json(force=True)
+    encoded = message['image']
+    print(encoded)
+    url = 'https://api.imgbb.com/1/upload'
+    data = {
+        'key': '4bbdc1539b907002d0b9654c060ec60c',
+        'image': encoded
+    }
+    upload_img = requests.post(url, data=data)
+    response_dict = json.loads(upload_img.text)
+    c = CaptionBot()
+    caption = c.url_caption(response_dict['data']['url'])
+    print(caption)
+    response = {
+        'caption': caption
+    }
+    return jsonify(response)
 
 
 @app.route('/hello', methods=['POST'])
@@ -78,5 +97,5 @@ def hello():
 
 
 if __name__ == '__main__':
-   app.run(host='127.0.0.1', debug=True, port=9050)
+    app.run(host='127.0.0.1', debug=True, port=9050)
 
