@@ -1,12 +1,10 @@
 import numpy as np
-import os
 import keras
 import base64
 import io
 import json
 import requests
 from PIL import Image
-from keras import backend as K
 from keras.preprocessing.image import img_to_array
 from keras.models import load_model
 import tensorflow as tf
@@ -21,7 +19,7 @@ app = Flask(__name__)
 
 def get_model():
     global model
-    model = load_model('aeye.h5')
+    model = load_model('aeye_model_a.h5')
     print("Model Loaded!")
 
 
@@ -55,10 +53,12 @@ def predict():
     # prediction = model.predict(preprocessed_image)
     pred_class = prediction.argmax(axis=-1)
     pred_perc = max(prediction[0])
-    label = labels[pred_class[0]]
-    print(label)
+    label_en = labels['EN'][pred_class[0]]
+    label_it = labels['IT'][pred_class[0]]
+    print(label_en)
     response = {
-        'label': label,
+        'label_en': label_en,
+        'label_it': label_it,
         'percentage': str(pred_perc)
     }
     return jsonify(response)
@@ -86,12 +86,10 @@ def caption_bot():
     return jsonify(response)
 
 
-@app.route('/hello', methods=['POST'])
+@app.route('/ping', methods=['GET'])
 def hello():
-    message = request.get_json(force=True)
-    name = message['name']
     response = {
-        'greeting': 'Hello, ' + name + '!'
+        'greeting': 'Pong'
     }
     return jsonify(response)
 
