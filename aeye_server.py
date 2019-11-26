@@ -11,11 +11,13 @@ import tensorflow as tf
 from flask import request
 from flask import Flask
 from flask import jsonify
+from flask_cors import CORS
+from flask import Response
 from captionbot import CaptionBot
 from aeye_labels import labels
 
 app = Flask(__name__)
-
+CORS(app)
 
 def get_model():
     global model
@@ -61,7 +63,7 @@ def predict():
         'label_it': label_it,
         'percentage': str(pred_perc)
     }
-    return jsonify(response)
+    return Response(json.dumps(response), 200, {'Access-Control-Allow-Origin': '*'})
 
 
 @app.route("/caption_bot", methods=["POST"])
@@ -83,7 +85,7 @@ def caption_bot():
     response = {
         'caption': caption
     }
-    return jsonify(response)
+    return Response(json.dumps(response), 200, {'Access-Control-Allow-Origin': '*'})
 
 
 @app.route('/ping', methods=['GET'])
@@ -91,7 +93,7 @@ def hello():
     response = {
         'greeting': 'Pong'
     }
-    return jsonify(response)
+    return Response(json.dumps(response), 200, {'Access-Control-Allow-Origin': '*'})
 
 
 if __name__ == '__main__':
